@@ -1,1 +1,1 @@
-{"resultId":"license_agreement_not_accepted","message":"License Agreement has to be accepted to use PingFederate."}
+{"resultId":"basic_auth_required","message":"HTTP Basic authentication is required."}
