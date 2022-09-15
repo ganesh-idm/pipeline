@@ -1,0 +1,768 @@
+---
+# Source: ping-devops/templates/pingdirectory/cronjob.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/name: pingdirectory
+    app.kubernetes.io/instance: pipeline
+    helm.sh/chart: ping-devops-0.9.5
+    app.kubernetes.io/managed-by: Helm
+  name: pipeline-pingdirectory-internal-kubectl
+---
+# Source: ping-devops/templates/configmaps/configmaps.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/name: global
+    app.kubernetes.io/instance: pipeline
+    helm.sh/chart: ping-devops-0.9.5
+    app.kubernetes.io/managed-by: Helm
+  name: pd-backup
+data:
+  backup.sh: "#!/bin/sh\nset -e        \n# Create a directory for the backup\nmkdir
+    -p /opt/pd-backup\n# Run the backup\n/opt/server/bin/backup --backupDirectory
+    /opt/pd-backup --backendID userRoot --retainPreviousFullBackupAge '1 day'"
+---
+# Source: ping-devops/templates/global/env-vars.yaml
+apiVersion: v1
+data:
+  PA_ADMIN_PRIVATE_HOSTNAME: pipeline-pingaccess-admin
+  PA_ADMIN_PRIVATE_PORT_CLUSTERCONFIG: "9090"
+  PA_ADMIN_PRIVATE_PORT_HTTPS: "9000"
+  PA_ADMIN_PUBLIC_HOSTNAME: localhost
+  PA_ADMIN_PUBLIC_PORT_HTTPS: "9000"
+  PA_ENGINE_PRIVATE_HOSTNAME: pipeline-pingaccess-engine
+  PA_ENGINE_PRIVATE_PORT_HTTPS: "3000"
+  PA_ENGINE_PUBLIC_HOSTNAME: localhost
+  PA_ENGINE_PUBLIC_PORT_HTTPS: "3000"
+  PAZ_ENGINE_PRIVATE_HOSTNAME: pipeline-pingauthorize
+  PAZ_ENGINE_PRIVATE_PORT_HTTPS: "443"
+  PAZ_ENGINE_PUBLIC_HOSTNAME: localhost
+  PAZ_ENGINE_PUBLIC_PORT_HTTPS: "1443"
+  PAZP_ENGINE_PRIVATE_HOSTNAME: pipeline-pingauthorizepap
+  PAZP_ENGINE_PRIVATE_PORT_HTTPS: "8443"
+  PAZP_ENGINE_PUBLIC_HOSTNAME: localhost
+  PAZP_ENGINE_PUBLIC_PORT_HTTPS: "8443"
+  PD_CONSOLE_PRIVATE_HOSTNAME: pipeline-pingdataconsole
+  PD_CONSOLE_PRIVATE_PORT_HTTPS: "8443"
+  PD_CONSOLE_PUBLIC_HOSTNAME: localhost
+  PD_CONSOLE_PUBLIC_PORT_HTTPS: "8443"
+  PD_DELEGATOR_PRIVATE_HOSTNAME: pipeline-pingdelegator
+  PD_DELEGATOR_PRIVATE_PORT_HTTPS: "6443"
+  PD_DELEGATOR_PUBLIC_HOSTNAME: localhost
+  PD_DELEGATOR_PUBLIC_PORT_HTTPS: "6443"
+  PD_ENGINE_PRIVATE_HOSTNAME: pipeline-pingdirectory
+  PD_ENGINE_PRIVATE_PORT_HTTPS: "443"
+  PD_ENGINE_PRIVATE_PORT_LDAP: "389"
+  PD_ENGINE_PRIVATE_PORT_LDAPS: "636"
+  PD_ENGINE_PUBLIC_HOSTNAME: localhost
+  PD_ENGINE_PUBLIC_PORT_HTTPS: "1443"
+  PDG_ENGINE_PRIVATE_HOSTNAME: pipeline-pingdatagovernance
+  PDG_ENGINE_PRIVATE_PORT_HTTPS: "443"
+  PDG_ENGINE_PUBLIC_HOSTNAME: localhost
+  PDG_ENGINE_PUBLIC_PORT_HTTPS: "1443"
+  PDGP_ENGINE_PRIVATE_HOSTNAME: pipeline-pingdatagovernancepap
+  PDGP_ENGINE_PRIVATE_PORT_HTTPS: "8443"
+  PDGP_ENGINE_PUBLIC_HOSTNAME: localhost
+  PDGP_ENGINE_PUBLIC_PORT_HTTPS: "8443"
+  PDP_ENGINE_PRIVATE_HOSTNAME: pipeline-pingdirectoryproxy
+  PDP_ENGINE_PRIVATE_PORT_HTTPS: "443"
+  PDP_ENGINE_PUBLIC_HOSTNAME: localhost
+  PDP_ENGINE_PUBLIC_PORT_HTTPS: "1443"
+  PDS_ENGINE_PRIVATE_HOSTNAME: pipeline-pingdatasync
+  PDS_ENGINE_PRIVATE_PORT_HTTPS: "443"
+  PDS_ENGINE_PUBLIC_HOSTNAME: localhost
+  PDS_ENGINE_PUBLIC_PORT_HTTPS: "1443"
+  PF_ADMIN_PRIVATE_HOSTNAME: pipeline-pingfederate-admin
+  PF_ADMIN_PRIVATE_PORT_HTTPS: "9999"
+  PF_ADMIN_PUBLIC_HOSTNAME: localhost
+  PF_ADMIN_PUBLIC_PORT_HTTPS: "9999"
+  PF_ENGINE_PRIVATE_HOSTNAME: pipeline-pingfederate-engine
+  PF_ENGINE_PRIVATE_PORT_HTTPS: "9031"
+  PF_ENGINE_PUBLIC_HOSTNAME: localhost
+  PF_ENGINE_PUBLIC_PORT_HTTPS: "9031"
+  PI_ASE_PRIVATE_HOSTNAME: pipeline-pingintelligence
+  PI_ASE_PRIVATE_PORT_HTTPS: "8010"
+  PI_ASE_PUBLIC_HOSTNAME: localhost
+  PI_ASE_PUBLIC_PORT_HTTPS: "8010"
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: global
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-global-env-vars
+---
+# Source: ping-devops/templates/pingaccess-admin/env-vars.yaml
+apiVersion: v1
+data:
+  OPERATIONAL_MODE: CLUSTERED_CONSOLE
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pingaccess-admin
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-pingaccess-admin-env-vars
+---
+# Source: ping-devops/templates/pingdirectory/env-vars.yaml
+apiVersion: v1
+data:
+  HTTPS_PORT: "1443"
+  K8S_STATEFUL_SET_NAME: pipeline-pingdirectory
+  K8S_STATEFUL_SET_SERVICE_NAME: pipeline-pingdirectory-cluster
+  LDAP_PORT: "1389"
+  LDAPS_PORT: "1636"
+  MAKELDIF_USERS: "400"
+  ORCHESTRATION_TYPE: KUBERNETES
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pingdirectory
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-pingdirectory-env-vars
+---
+# Source: ping-devops/templates/pingfederate-admin/env-vars.yaml
+apiVersion: v1
+data:
+  CLUSTER_BIND_ADDRESS: NON_LOOPBACK
+  CLUSTER_NAME: pipeline
+  DNS_QUERY_LOCATION: pipeline-pingfederate-cluster.us-east-1.svc.cluster.local
+  DNS_RECORD_TYPE: A
+  OPERATIONAL_MODE: CLUSTERED_CONSOLE
+  PF_ADMIN_PUBLIC_BASEURL: https://localhost:9999
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pingfederate-admin
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-pingfederate-admin-env-vars
+---
+# Source: ping-devops/templates/pingdirectory/cronjob.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/name: pingdirectory
+    app.kubernetes.io/instance: pipeline
+    helm.sh/chart: ping-devops-0.9.5
+    app.kubernetes.io/managed-by: Helm
+  name: pipeline-pingdirectory-modify-pods
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - delete
+  - apiGroups: [""]
+    resources: 
+      - pods/exec
+    verbs: 
+      - create
+---
+# Source: ping-devops/templates/pingdirectory/cronjob.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/name: pingdirectory
+    app.kubernetes.io/instance: pipeline
+    helm.sh/chart: ping-devops-0.9.5
+    app.kubernetes.io/managed-by: Helm
+  name: pipeline-pingdirectory-modify-pods-to-sa
+subjects:
+  - kind: ServiceAccount
+    name: pipeline-pingdirectory-internal-kubectl
+roleRef:
+  kind: Role
+  name: pipeline-pingdirectory-modify-pods
+  apiGroup: rbac.authorization.k8s.io
+---
+# Source: ping-devops/templates/pingaccess-admin/service-cluster.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pingaccess-admin
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-pingaccess-admin-cluster
+spec:
+  clusterIP: None
+  ports: null
+  publishNotReadyAddresses: true
+  selector:
+    clusterIdentifier: pipeline-pingaccess
+  type: ClusterIP
+---
+# Source: ping-devops/templates/pingaccess-admin/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pingaccess-admin
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-pingaccess-admin
+spec:
+  ports:
+  - name: clusterconfig
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
+  - name: https
+    port: 9000
+    protocol: TCP
+    targetPort: 9000
+  selector:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/name: pingaccess-admin
+---
+# Source: ping-devops/templates/pingdirectory/service-cluster.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pingdirectory
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-pingdirectory-cluster
+spec:
+  clusterIP: None
+  ports:
+  - name: ldaps
+    port: 1636
+    protocol: TCP
+  publishNotReadyAddresses: true
+  selector:
+    clusterIdentifier: pipeline-pingdirectory
+  type: ClusterIP
+---
+# Source: ping-devops/templates/pingdirectory/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pingdirectory
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-pingdirectory
+spec:
+  ports:
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 1443
+  - name: ldap
+    port: 389
+    protocol: TCP
+    targetPort: 1389
+  - name: ldaps
+    port: 636
+    protocol: TCP
+    targetPort: 1636
+  selector:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/name: pingdirectory
+---
+# Source: ping-devops/templates/pingfederate-admin/service-admin.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pingfederate-admin
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-pingfederate-admin
+spec:
+  ports:
+  - name: https
+    port: 9999
+    protocol: TCP
+    targetPort: 9999
+  selector:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/name: pingfederate-admin
+---
+# Source: ping-devops/templates/pingfederate-admin/service-cluster.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pingfederate-admin
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-pingfederate-cluster
+spec:
+  clusterIP: None
+  ports:
+  - name: clusterbind
+    port: 7600
+    protocol: TCP
+  - name: clusterfail
+    port: 7700
+    protocol: TCP
+  publishNotReadyAddresses: true
+  selector:
+    clusterIdentifier: pipeline-pingfederate
+  type: ClusterIP
+---
+# Source: ping-devops/templates/pingfederate-admin/workload.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pingfederate-admin
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-pingfederate-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: pipeline
+      app.kubernetes.io/name: pingfederate-admin
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        checksum/config: 469b642e4cf948a412a35fc934cde852e37a83b7ae98d70d7226d1085686fc75
+      labels:
+        app.kubernetes.io/instance: pipeline
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: pingfederate-admin
+        clusterIdentifier: pipeline-pingfederate
+        helm.sh/chart: ping-devops-0.9.5
+    spec:
+      affinity: {}
+      containers:
+      - args: null
+        envFrom:
+        - configMapRef:
+            name: pipeline-global-env-vars
+            optional: true
+        - configMapRef:
+            name: pipeline-env-vars
+            optional: true
+        - configMapRef:
+            name: pipeline-pingfederate-admin-env-vars
+        - secretRef:
+            name: devops-secret
+            optional: true
+        - secretRef:
+            name: pipeline-pingfederate-admin-git-secret
+            optional: true
+        image: pingidentity/pingfederate:2205
+        imagePullPolicy: IfNotPresent
+        lifecycle: {}
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - /opt/liveness.sh
+          failureThreshold: 4
+          initialDelaySeconds: 200
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: pingfederate-admin
+        ports:
+        - containerPort: 7600
+          name: clusterbind
+        - containerPort: 7700
+          name: clusterfail
+        - containerPort: 9999
+          name: https
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - /opt/readiness.sh
+          failureThreshold: 4
+          initialDelaySeconds: 200
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: 2
+            memory: 4Gi
+          requests:
+            cpu: 0
+            memory: 1Gi
+        startupProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - /opt/liveness.sh
+          failureThreshold: 300
+          initialDelaySeconds: 200
+          periodSeconds: 30
+          timeoutSeconds: 5
+        volumeMounts: null
+      enableServiceLinks: true
+      initContainers: null
+      nodeSelector: {}
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 0
+        runAsGroup: 0
+        runAsUser: 9031
+      shareProcessNamespace: false
+      terminationGracePeriodSeconds: 30
+      tolerations: []
+      topologySpreadConstraints: []
+      volumes: null
+---
+# Source: ping-devops/templates/pingaccess-admin/workload.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pingaccess-admin
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-pingaccess-admin
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: pipeline
+      app.kubernetes.io/name: pingaccess-admin
+  serviceName: pipeline-pingaccess-admin-cluster
+  template:
+    metadata:
+      annotations:
+        checksum/config: a73b66144ffe05ba6a180ee6428103599ec1869047576848554aa446514b4dd1
+      labels:
+        app.kubernetes.io/instance: pipeline
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: pingaccess-admin
+        clusterIdentifier: pipeline-pingaccess
+        helm.sh/chart: ping-devops-0.9.5
+    spec:
+      affinity: {}
+      containers:
+      - args: null
+        envFrom:
+        - configMapRef:
+            name: pipeline-global-env-vars
+            optional: true
+        - configMapRef:
+            name: pipeline-env-vars
+            optional: true
+        - configMapRef:
+            name: pipeline-pingaccess-admin-env-vars
+        - secretRef:
+            name: devops-secret
+            optional: true
+        - secretRef:
+            name: pipeline-pingaccess-admin-git-secret
+            optional: true
+        image: pingidentity/pingaccess:2205
+        imagePullPolicy: IfNotPresent
+        lifecycle: {}
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - /opt/liveness.sh
+          failureThreshold: 4
+          initialDelaySeconds: 200
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: pingaccess-admin
+        ports:
+        - containerPort: 9090
+          name: clusterconfig
+        - containerPort: 9000
+          name: https
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - /opt/readiness.sh
+          failureThreshold: 4
+          initialDelaySeconds: 200
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: 2
+            memory: 4Gi
+          requests:
+            cpu: 0
+            memory: 1Gi
+        startupProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - /opt/liveness.sh
+          failureThreshold: 300
+          initialDelaySeconds: 200
+          periodSeconds: 30
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: /home/ubuntu
+          name: out-dir
+      enableServiceLinks: true
+      initContainers: null
+      nodeSelector: {}
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 0
+        runAsGroup: 0
+        runAsUser: 9031
+      shareProcessNamespace: false
+      terminationGracePeriodSeconds: 30
+      tolerations: []
+      topologySpreadConstraints: []
+      volumes:
+      - name: out-dir
+        persistentVolumeClaim:
+          claimName: out-dir
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - metadata:
+      name: out-dir
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 4Gi
+      storageClassName: gp2
+---
+# Source: ping-devops/templates/pingdirectory/workload.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pingdirectory
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-pingdirectory
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: pipeline
+      app.kubernetes.io/name: pingdirectory
+  serviceName: pipeline-pingdirectory-cluster
+  template:
+    metadata:
+      annotations:
+        checksum/config: 33763ec0d264598788cd08f92de8a4c1c4dcf8aa6c9db9e752e107284a207443
+      labels:
+        app.kubernetes.io/instance: pipeline
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: pingdirectory
+        clusterIdentifier: pipeline-pingdirectory
+        helm.sh/chart: ping-devops-0.9.5
+    spec:
+      affinity: {}
+      containers:
+      - args: null
+        envFrom:
+        - configMapRef:
+            name: pipeline-global-env-vars
+            optional: true
+        - configMapRef:
+            name: pipeline-env-vars
+            optional: true
+        - configMapRef:
+            name: pipeline-pingdirectory-env-vars
+        - secretRef:
+            name: devops-secret
+            optional: true
+        - secretRef:
+            name: pipeline-pingdirectory-git-secret
+            optional: true
+        image: pingidentity/pingdirectory:2205
+        imagePullPolicy: IfNotPresent
+        lifecycle: {}
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - /opt/liveness.sh
+          failureThreshold: 4
+          initialDelaySeconds: 200
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        name: pingdirectory
+        ports:
+        - containerPort: 1443
+          name: https
+        - containerPort: 1389
+          name: ldap
+        - containerPort: 1636
+          name: ldaps
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - /opt/readiness.sh
+          failureThreshold: 4
+          initialDelaySeconds: 200
+          periodSeconds: 200
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: 2
+            memory: 8Gi
+          requests:
+            cpu: 500m
+            memory: 2Gi
+        startupProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - /opt/liveness.sh
+          failureThreshold: 300
+          initialDelaySeconds: 200
+          periodSeconds: 30
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: /tmp
+          name: temp
+        - mountPath: /home/ubuntu
+          name: out-dir
+      - args:
+        - -f
+        - /dev/null
+        command:
+        - tail
+        image: pingidentity/pingdirectory:2205
+        imagePullPolicy: IfNotPresent
+        name: utility-sidecar
+        resources:
+          limits:
+            cpu: "1"
+            memory: 2Gi
+          requests:
+            cpu: "0"
+            memory: 128Mi
+        volumeMounts:
+        - mountPath: /opt/out
+          name: out-dir
+        - mountPath: /tmp
+          name: temp
+        - mountPath: /opt/in/backup.sh
+          name: backup-script
+          subPath: backup.sh
+      enableServiceLinks: true
+      initContainers: null
+      nodeSelector: {}
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 0
+        runAsGroup: 0
+        runAsUser: 9031
+      shareProcessNamespace: false
+      terminationGracePeriodSeconds: 300
+      tolerations: []
+      topologySpreadConstraints: []
+      volumes:
+      - emptyDir: {}
+        name: temp
+      - configMap:
+          defaultMode: 493
+          name: pd-backup
+        name: backup-script
+      - name: out-dir
+        persistentVolumeClaim:
+          claimName: out-dir
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - metadata:
+      name: out-dir
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 8Gi
+      storageClassName: gp2
+---
+# Source: ping-devops/templates/pingdirectory/cronjob.yaml
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  labels:
+    app.kubernetes.io/instance: pipeline
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: pingdirectory
+    helm.sh/chart: ping-devops-0.9.5
+  name: pipeline-pingdirectory-cronjob
+spec:
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - args:
+            - exec
+            - -ti
+            - pipeline-pingdirectory-0
+            - --container
+            - utility-sidecar
+            - --
+            - /opt/in/backup.sh
+            command:
+            - kubectl
+            image: bitnami/kubectl:latest
+            name: pipeline-pingdirectory-cronjob
+          restartPolicy: OnFailure
+          serviceAccount: pipeline-pingdirectory-internal-kubectl
+  schedule: 0 */6 * * *
+  successfulJobsHistoryLimit: 0
+
